@@ -23,6 +23,8 @@ DATA_SUBSET_STUDY_SUP = [
     d for d in DATA_SOCIAL + DATA_BIO if d not in DATA_SUBSET_STUDY]
 DATA_SUBSET_FAST = ['IMDB-BINARY', 'PROTEINS', 'IMDB-MULTI', 'ENZYMES']
 DATA_IMAGES = ['MNIST', 'MNIST_SUPERPIXEL', 'CIFAR10']
+DATA_CLOUD_POINTS = ['ModelNet', 'TOSCA']
+DATA_REGRESSION = ['QM9']
 
 
 str2bool = lambda x: x.lower() == "true"
@@ -173,6 +175,21 @@ def run_exp_lib(dataset_feat_net_triples,
                 epoch_select=args.epoch_select,
                 with_eval_mode=args.with_eval_mode)
             std = 0
+        elif 'ModelNet' in dataset_name:
+            train_dataset, test_dataset = dataset
+            train_acc, acc, duration = single_train_test(
+                train_dataset,
+                test_dataset,
+                model_func,
+                epochs=args.epochs,
+                batch_size=args.batch_size,
+                lr=args.lr,
+                lr_decay_factor=args.lr_decay_factor,
+                lr_decay_step_size=args.lr_decay_step_size,
+                weight_decay=0,
+                epoch_select=args.epoch_select,
+                with_eval_mode=args.with_eval_mode)
+            std = 0
         else:
             train_acc, acc, std, duration = cross_validation_with_val_set(
                 dataset,
@@ -261,8 +278,10 @@ def run_exp_feat_study():
 def run_exp_benchmark():
     # Run GFN, GFN (light), GCN
     print('[INFO] running standard benchmarks..')
-    datasets = DATA_BIO + DATA_SOCIAL
+    # datasets = DATA_BIO + DATA_SOCIAL
+    datasets = DATA_CLOUD_POINTS
     feat_strs = ['deg+odeg100']
+    # nets = ['ResGCN']
     nets = ['ResGFN', 'ResGFN_conv0_fc2', 'ResGCN']
     run_exp_lib(create_n_filter_triples(datasets, feat_strs, nets,
                                         gfn_add_ak3=True,

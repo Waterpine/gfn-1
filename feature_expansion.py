@@ -5,6 +5,8 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_scatter import scatter_add
 from torch_geometric.utils import degree
 from torch_geometric.utils import remove_self_loops, add_self_loops
+from torch_geometric.utils import to_undirected
+from torch_geometric.transforms import FaceToEdge
 
 class FeatureExpander(MessagePassing):
     r"""Expand features.
@@ -40,6 +42,50 @@ class FeatureExpander(MessagePassing):
         akx = self.compute_akx(data.num_nodes, data.x, data.edge_index)
         cent = self.compute_centrality(data)
         data.x = torch.cat([data.x, deg, deg_onehot, akx, cent], -1)
+
+        if self.remove_edges != "none":
+            if self.remove_edges == "all":
+                self_edge = None
+            else:  # only keep self edge
+                self_edge = torch.tensor(range(data.num_nodes)).view((1, -1))
+                self_edge = torch.cat([self_edge, self_edge], 0)
+            data.edge_index = self_edge
+
+        # Reduce nodes by degree-based grouping
+        if self.group_degree > 0:
+            assert self.remove_edges == "all", "remove all edges"
+            x_base = data.x
+            deg_base = deg.view(-1)
+            super_nodes = []
+            for k in range(1, self.group_degree + 1):
+                eq_idx = deg_base == k
+                gt_idx = deg_base > k
+                x_to_group = x_base[eq_idx]
+                x_base = x_base[gt_idx]
+                deg_base = deg_base[gt_idx]
+                group_size = torch.zeros([1, 1]) + x_to_group.size(0)
+                if x_to_group.size(0) == 0:
+                  super_nodes.append(
+                      torch.cat([group_size, data.x[:1]*0], -1))
+                else:
+                  super_nodes.append(
+                      torch.cat([group_size,
+                                 x_to_group.mean(0, keepdim=True)], -1))
+            if x_base.size(0) == 0:
+                x_base = data.x[:1] * 0
+            data.x = x_base
+            data.xg = torch.cat(super_nodes, 0).view((1, -1))
+
+        return data
+
+    def cloud_point_transform(self, data):
+        if data.x is None:
+          data.x = torch.ones([data.num_nodes, 1], dtype=torch.float)
+
+        deg, deg_onehot = self.compute_degree(data.edge_index, data.num_nodes)
+        akx = self.compute_akx(data.num_nodes, data.x, data.edge_index)
+        cent = self.compute_centrality(data)
+        data.x = torch.cat([data.x, data.pos, deg, deg_onehot, akx, cent], -1)
 
         if self.remove_edges != "none":
             if self.remove_edges == "all":

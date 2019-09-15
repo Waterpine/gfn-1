@@ -8,6 +8,9 @@ import torch_geometric.transforms as T
 from feature_expansion import FeatureExpander
 from image_dataset import ImageDataset
 from tu_dataset import TUDatasetExt
+from qm9_dataset import QM9Ext
+from tosca_dataset import TOSCAEXT
+from modelnet_dataset import ModelNetExT
 
 
 def get_dataset(name, sparse=True, feat_str="deg+ak3+reall", root=None):
@@ -35,17 +38,39 @@ def get_dataset(name, sparse=True, feat_str="deg+ak3+reall", root=None):
     if 'MNIST' in name or 'CIFAR' in name:
         if name == 'MNIST_SUPERPIXEL':
             train_dataset = MNISTSuperpixels(path, True,
-                pre_transform=pre_transform, transform=T.Cartesian())
+                                             pre_transform=pre_transform,
+                                             transform=T.Cartesian())
             test_dataset = MNISTSuperpixels(path, False,
-                pre_transform=pre_transform, transform=T.Cartesian())
+                                            pre_transform=pre_transform,
+                                            transform=T.Cartesian())
         else:
             train_dataset = ImageDataset(path, name, True,
-                pre_transform=pre_transform, coord=coord,
-                processed_file_prefix="data_%s" % feat_str)
+                                         pre_transform=pre_transform, coord=coord,
+                                         processed_file_prefix="data_%s" % feat_str)
             test_dataset = ImageDataset(path, name, False,
-                pre_transform=pre_transform, coord=coord,
-                processed_file_prefix="data_%s" % feat_str)
+                                        pre_transform=pre_transform, coord=coord,
+                                        processed_file_prefix="data_%s" % feat_str)
         dataset = (train_dataset, test_dataset)
+    elif 'QM9' in name:
+        dataset = QM9Ext(path, pre_transform=pre_transform,
+                         processed_filename="data_%s.pt" % feat_str)
+    elif 'ModelNet' in name:
+        pre_transform = FeatureExpander(
+            degree=degree, onehot_maxdeg=onehot_maxdeg, AK=k,
+            centrality=centrality, remove_edges=remove_edges,
+            group_degree=groupd).cloud_point_transform
+        train_dataset = ModelNetExT(path, train=True, pre_transform=pre_transform,
+                                    processed_file_prefix="data_%s" % feat_str)
+        test_dataset = ModelNetExT(path, train=True, pre_transform=pre_transform,
+                                   processed_file_prefix="data_%s" % feat_str)
+        dataset = (train_dataset, test_dataset)
+    elif 'TOSCA' in name:
+        # pre_transform = FeatureExpander(
+        #     degree=degree, onehot_maxdeg=onehot_maxdeg, AK=k,
+        #     centrality=centrality, remove_edges=remove_edges,
+        #     group_degree=groupd).cloud_point_transform
+        dataset = TOSCAEXT(path, pre_transform=pre_transform,
+                           processed_file_prefix="data_%s" % feat_str)
     else:
         dataset = TUDatasetExt(
             path, name, pre_transform=pre_transform,

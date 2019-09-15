@@ -8,4 +8,4 @@ alpha/
 *.egg-info/
 .coverage
 .coverage.*
-
+.idea/
