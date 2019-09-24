@@ -64,12 +64,13 @@ def single_train_test(train_dataset,
         train_acc = train_accs[-1]
         test_acc = test_accs[-1]
 
-    return train_acc, test_acc, duration
+    return train_acc, test_acc, duration, train_accs, test_accs
 
 
 def cross_validation_with_val_set(dataset,
                                   model_func,
                                   folds,
+                                  percent,
                                   epochs,
                                   batch_size,
                                   lr,
@@ -86,6 +87,7 @@ def cross_validation_with_val_set(dataset,
             zip(*k_fold(dataset, folds, epoch_select))):
 
         train_dataset = dataset[train_idx]
+        train_dataset = train_dataset[:int(percent * len(train_dataset))]
         test_dataset = dataset[test_idx]
         val_dataset = dataset[val_idx]
 
@@ -154,7 +156,8 @@ def cross_validation_with_val_set(dataset,
           format(train_acc_mean, test_acc_mean, test_acc_std, duration_mean))
     sys.stdout.flush()
 
-    return train_acc_mean, test_acc_mean, test_acc_std, duration_mean
+    return train_acc_mean, test_acc_mean, test_acc_std, duration_mean, \
+           train_accs, test_accs
 
 
 def k_fold(dataset, folds, epoch_select):

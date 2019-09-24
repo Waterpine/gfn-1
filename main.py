@@ -142,6 +142,7 @@ def get_model_with_default_configs(model_name,
 
 
 def run_exp_lib(dataset_feat_net_triples,
+                percent=0.1,
                 get_model=get_model_with_default_configs):
     results = []
     exp_nums = len(dataset_feat_net_triples)
@@ -162,7 +163,9 @@ def run_exp_lib(dataset_feat_net_triples,
         model_func = get_model(net)
         if 'MNIST' in dataset_name or 'CIFAR' in dataset_name:
             train_dataset, test_dataset = dataset
-            train_acc, acc, duration = single_train_test(
+            train_dataset_size = len(train_dataset)
+            train_dataset = train_dataset[:int(percent * train_dataset_size)]
+            train_acc, acc, duration, train_accs, test_accs = single_train_test(
                 train_dataset,
                 test_dataset,
                 model_func,
@@ -177,7 +180,7 @@ def run_exp_lib(dataset_feat_net_triples,
             std = 0
         elif 'ModelNet' in dataset_name:
             train_dataset, test_dataset = dataset
-            train_acc, acc, duration = single_train_test(
+            train_acc, acc, duration, train_accs, test_accs = single_train_test(
                 train_dataset,
                 test_dataset,
                 model_func,
@@ -191,10 +194,11 @@ def run_exp_lib(dataset_feat_net_triples,
                 with_eval_mode=args.with_eval_mode)
             std = 0
         else:
-            train_acc, acc, std, duration = cross_validation_with_val_set(
+            train_acc, acc, std, duration, train_accs, test_accs = cross_validation_with_val_set(
                 dataset,
                 model_func,
                 folds=10,
+                percent=percent,
                 epochs=args.epochs,
                 batch_size=args.batch_size,
                 lr=args.lr,
@@ -212,6 +216,14 @@ def run_exp_lib(dataset_feat_net_triples,
         results += ['{}: {}, {}'.format('fin-result', summary1, summary2)]
         print('{}: {}, {}'.format('mid-result', summary1, summary2))
         sys.stdout.flush()
+        with open('save_data/{}_{}_{}_train.txt'.format(
+                dataset_name, net, percent), 'a') as f:
+            for item in train_accs:
+                f.write("%s\n" % item)
+        with open('save_data/{}_{}_{}_test.txt'.format(
+                dataset_name, net, percent), 'a') as f:
+            for item in test_accs:
+                f.write("%s\n" % item)
     print('-----\n{}'.format('\n'.join(results)))
     sys.stdout.flush()
 
@@ -278,15 +290,23 @@ def run_exp_feat_study():
 def run_exp_benchmark():
     # Run GFN, GFN (light), GCN
     print('[INFO] running standard benchmarks..')
+    datasets = ['MUTAG', 'PROTEINS', 'DD', 'ENZYMES', 'PTC_MR']
+    # datasets = ['MUTAG', 'PROTEINS', 'DD', 'ENZYMES', 'PTC_MR',
+    #             'REDDIT-MULTI-5K', 'REDDIT-MULTI-12K', 'REDDIT-BINARY',
+    #             'COLLAB', 'IMDB-BINARY', 'IMDB-MULTI']
+    # datasets = ['NCI1']
     # datasets = DATA_BIO + DATA_SOCIAL
-    datasets = DATA_CLOUD_POINTS
+    # datasets = DATA_CLOUD_POINTS
+    # datasets = ['MNIST']
+    # datasets = ['REDDIT-MULTI-5K', 'REDDIT-MULTI-12K', 'REDDIT-BINARY']
     feat_strs = ['deg+odeg100']
     # nets = ['ResGCN']
     nets = ['ResGFN', 'ResGFN_conv0_fc2', 'ResGCN']
     run_exp_lib(create_n_filter_triples(datasets, feat_strs, nets,
                                         gfn_add_ak3=True,
                                         reddit_odeg10=True,
-                                        dd_odeg10_ak1=True))
+                                        dd_odeg10_ak1=True),
+                percent=0.8)
 
 
 def run_exp_image(nets=['ResGCN'], feat_strs=['none'], datasets=['MNIST']):
