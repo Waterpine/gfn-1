@@ -7,6 +7,8 @@ import os
 
 
 def mean_generate():
+    if not os.path.exists('../noise_both_mean'):
+        os.makedirs('../noise_both_mean')
     dir = '../perf-vs-noises/noises_both'
     clss = ['BIO', 'SOCIAL']  # bio or social
     models = ['GCN', 'GFN']  # gcn or gfn
@@ -118,6 +120,8 @@ def mean_generate():
 
 
 def mean():
+    if not os.path.exists('../noise_both'):
+        os.makedirs('../noise_both')
     dir = '../perf-vs-noises/noises_both'
     clss = ['BIO', 'SOCIAL']  # bio or social
     models = ['GCN', 'GFN']   # gcn or gfn
@@ -214,7 +218,6 @@ def mean():
                                      np.array(test_acc) + np.array(error),
                                      np.array(test_acc) - np.array(error),
                                      alpha=0.5)
-            plt.ylim(0.0, 1.0)
             plt.legend(loc='lower right',
                        prop={'size': 16},
                        labels=["GCN(train)",
@@ -232,6 +235,8 @@ def mean():
 
 
 def last():
+    if not os.path.exists('../noise_both_last'):
+        os.makedirs('../noise_both_last')
     dir = '../perf-vs-noises/noises_both'
     clss = ['BIO', 'SOCIAL']  # bio or social
     models = ['GCN', 'GFN']  # gcn or gfn

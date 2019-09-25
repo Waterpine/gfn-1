@@ -3,12 +3,13 @@ from pandas import DataFrame
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import os
 
 
 def main():
     datasets = ['COLLAB', 'DD', 'ENZYMES', 'IMDB-BINARY', 'IMDB-MULTI',
                 'MUTAG', 'PROTEINS', 'PTC_MR', 'REDDIT-MULTI-5K',
-                'REDDIT-MULTI-12K']
+                'REDDIT-MULTI-12K', 'REDDIT-BINARY']
     evals = ['train', 'test']
     models = ['GCN', 'GFN']
     percents = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
@@ -103,4 +104,6 @@ def main():
 
 
 if __name__ == '__main__':
+    if not os.path.exists('../perf vs percent'):
+        os.makedirs('../perf vs percent')
     main()

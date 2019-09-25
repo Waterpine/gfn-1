@@ -7,6 +7,8 @@ import os
 
 
 def mean_generate():
+    if not os.path.exists('../noise_add_mean'):
+        os.makedirs('../noise_add_mean')
     dir = '../perf-vs-noises/noises_add'
     clss = ['BIO', 'SOCIAL']  # bio or social
     models = ['GCN', 'GFN']  # gcn or gfn
@@ -51,7 +53,8 @@ def mean_generate():
                         'DD', 'ENZYMES', 'PTC_MR']
         elif cls == 'SOCIAL':
             datasets = ['COLLAB', 'IMDB-BINARY', 'IMDB-MULTI',
-                        'REDDIT-MULTI-5K', 'REDDIT-MULTI-12K', 'REDDIT-BINARY']
+                        'REDDIT-MULTI-5K', 'REDDIT-MULTI-12K',
+                        'REDDIT-BINARY']
         else:
             raise ValueError('cls error')
         for dataset in datasets:
@@ -116,6 +119,8 @@ def mean_generate():
 
 
 def mean():
+    if not os.path.exists('../noise_add'):
+        os.makedirs('../noise_add')
     dir = '../perf-vs-noises/noises_add'
     clss = ['BIO', 'SOCIAL']  # bio or social
     models = ['GCN', 'GFN']   # gcn or gfn
@@ -230,6 +235,8 @@ def mean():
 
 
 def last():
+    if not os.path.exists('../noise_add_last'):
+        os.makedirs('../noise_add_last')
     dir = '../perf-vs-noises/noises_add'
     clss = ['BIO', 'SOCIAL']  # bio or social
     models = ['GCN', 'GFN']  # gcn or gfn
@@ -248,8 +255,9 @@ def last():
 
     for cls in clss:
         for model in models:
-            with open(os.path.join(dir, 'noises_a_{}_{}.log'.format(cls.lower(),
-                                                                    model.lower())), 'r') as f:
+            with open(os.path.join(dir,
+                                   'noises_a_{}_{}.log'.format(cls.lower(),
+                                                               model.lower())), 'r') as f:
                 for line in f.readlines():
                     if len(line.split('/')) > 1 and line.split('/')[1][:3] == '100':
                         line = line.rstrip()
@@ -262,10 +270,12 @@ def last():
 
     for cls in clss:
         if cls == 'BIO':
-            datasets = ['MUTAG', 'NCI1', 'PROTEINS', 'DD', 'ENZYMES', 'PTC_MR']
+            datasets = ['MUTAG', 'NCI1', 'PROTEINS',
+                        'DD', 'ENZYMES', 'PTC_MR']
         elif cls == 'SOCIAL':
             datasets = ['COLLAB', 'IMDB-BINARY', 'IMDB-MULTI',
-                        'REDDIT-MULTI-5K', 'REDDIT-MULTI-12K', 'REDDIT-BINARY']
+                        'REDDIT-MULTI-5K', 'REDDIT-MULTI-12K',
+                        'REDDIT-BINARY']
         else:
             raise ValueError('cls error')
         for dataset in datasets:
