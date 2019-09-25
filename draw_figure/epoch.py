@@ -44,7 +44,8 @@ def main():
                           dashes=[(4, 2),
                                   (4, 2),
                                   '',
-                                  ''])
+                                  ''],
+                          ci='sd')
         if dataset == 'PTC_MR':
             plt.ylim(0, 1)
         elif dataset == 'PROTEINS':

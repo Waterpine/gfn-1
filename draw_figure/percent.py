@@ -73,7 +73,8 @@ def main():
                           dashes=[(4, 2),
                                   (4, 2),
                                   '',
-                                  ''])
+                                  ''],
+                          ci='sd')
         if dataset == 'DD':
             plt.ylim(0.5, 1.1)
         elif dataset == 'ENZYMES':

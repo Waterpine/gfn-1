@@ -66,8 +66,6 @@ def main():
                                      test_acc[count],
                                      '{}(test)'.format(model)])
                     count = count + 1
-            if dataset == 'IMDB-BINARY':
-                pass
             dataframe = DataFrame(data,
                                   columns=['Noise Level',
                                            'Accuracy',
@@ -120,7 +118,7 @@ def main():
                                "GFN(train)",
                                "GFN(test)"])
             plt.tick_params(labelsize=16)
-            plt.xlabel('Rand', fontsize=16)
+            plt.xlabel('Noise Level', fontsize=16)
             plt.ylabel('Accuracy', fontsize=16)
             plt.savefig('../noise_add/{}.pdf'.format(dataset),
                         bbox_inches="tight")

@@ -115,7 +115,7 @@ def main():
                                "GFN(train)",
                                "GFN(test)"])
             plt.tick_params(labelsize=16)
-            plt.xlabel('Rand', fontsize=16)
+            plt.xlabel('Noise Level', fontsize=16)
             plt.ylabel('Accuracy', fontsize=16)
             plt.savefig('../noise_delete/{}.pdf'.format(dataset),
                         bbox_inches="tight")
